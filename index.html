@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZOV</title>
+<meta name="description" content="Building design, ideas, and systems for purposeful growth.">
+
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ZOV">
+<meta property="og:title" content="ZOV — Create with purpose">
+<meta property="og:description" content="Building design, ideas, and systems for purposeful growth.">
+<meta property="og:image" content="assets/icons/og-image.svg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ZOV — Create with purpose">
+<meta name="twitter:description" content="Building design, ideas, and systems for purposeful growth.">
+<meta name="twitter:image" content="assets/icons/og-image.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- display=optional (not swap): the browser either has Poppins ready within
+     a very short block window or sticks with the fallback for this render —
+     no later swap, so no mid-page reflow/rewrap once the font arrives -->
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@300;400;500;600;700&display=optional" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060606;
+    --surface:#121214;
+    --surface-2:#19191c;
+    --border:rgba(255,255,255,0.08);
+    --border-hi:rgba(255,204,0,0.4);
+    --yellow:#ffcc00;
+    --paper:#f5f4ef;
+    --gray:#93938c;
+    --gray-dim:#5c5c58;
+    --maxw:1180px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  /* overflow-x here too, not just on body — some mobile browsers still size
+     their layout viewport off html's own content width even when a wide
+     descendant (e.g. the horizontal marquee track) sits inside its own
+     overflow:auto scroll container, dragging fixed UI elsewhere off-screen */
+  html{scroll-behavior:smooth;scrollbar-width:none;overflow-x:hidden;max-width:100vw;}
+  html::-webkit-scrollbar{display:none;}
+
+  /* ================= CUSTOM PAGE SCROLLBAR (real element — immune to OS/browser scrollbar theming) ================= */
+  /* wide invisible hit area flush against the true screen edge — so users don't
+     have to precisely aim for the thin visual bar to grab it, matching how a
+     native scrollbar responds anywhere near the edge */
+  #customScroll{position:fixed;top:0;right:0;width:22px;height:100vh;z-index:600;padding:6px 0;cursor:none;}
+  #customScrollTrack{position:relative;width:100%;height:100%;}
+  #customScrollThumb{
+    position:absolute;left:50%;width:3px;border-radius:999px;
+    transform:translateX(-50%);
+    background:rgba(255,255,255,0.16);cursor:none;
+    transition:background 0.25s ease, width 0.25s ease, box-shadow 0.25s ease;
+  }
+  #customScroll:hover #customScrollThumb, #customScrollThumb.dragging{
+    background:var(--yellow);width:5px;
+    box-shadow:0 0 12px rgba(255,204,0,0.5);
+  }
+  body.touch #customScroll{display:none;}
+  body{
+    background:var(--bg);color:var(--paper);
+    font-family:'Poppins', sans-serif;font-weight:400;line-height:1.65;
+    overflow-x:hidden;max-width:100vw;cursor:none;
+  }
+  body.touch{cursor:auto;}
+  .serif{font-family:'Instrument Serif', serif;font-style:italic;font-weight:400;}
+  a{color:inherit;text-decoration:none;cursor:none;}
+  body.touch a{cursor:auto;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;position:relative;z-index:1;}
+
+  ::selection{background:var(--yellow);color:var(--bg);}
+  img,svg{display:block;max-width:100%;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important;}
+  }
+
+  /* cursor — the same chevron used in the logo. mix-blend-mode:difference
+     inverts it against whatever sits underneath, so it's never invisible
+     no matter the background; on hover it turns yellow and points
+     diagonally down-left as an action cue */
+  #cur{
+    position:fixed;top:0;left:0;width:16px;height:auto;
+    pointer-events:none;z-index:999;will-change:transform;
+    mix-blend-mode:difference;opacity:0;
+  }
+  #cur.visible{opacity:1;}
+
+  /* click-ring — a single thin ring quietly expands and fades wherever
+     the user clicks empty space. Same easing curve as the mark and
+     reveal transitions elsewhere on the site, so it reads as part of
+     the same design language rather than an added effect. */
+  .click-ring{position:fixed;top:0;left:0;width:8px;height:8px;margin:-4px 0 0 -4px;
+    border:1px solid var(--yellow);border-radius:50%;pointer-events:none;z-index:997;
+    mix-blend-mode:difference;opacity:0.85;transform:scale(1);
+    transition:transform 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .click-ring.expand{transform:scale(7);opacity:0;}
+  #cur svg{width:100%;height:auto;display:block;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);}
+  #cur polygon{fill:#fff;transition:fill 0.3s ease;}
+  #cur.big svg{transform:rotate(-135deg) scale(1.25);}
+  #cur.big polygon{fill:var(--yellow);}
+  body.touch #cur{display:none;}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity 0.9s ease, transform 0.9s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  /* plain opacity-only reveal — no rise, just a quiet fade */
+  .reveal.fade-in{transform:none;}
+  .reveal.fade-in.in{transform:none;}
+
+  /* ================= HERO ================= */
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;padding:120px 24px 60px;}
+  .mark-glow{position:relative;width:150px;margin-bottom:36px;opacity:0;animation:blurIn 1s ease 0.3s forwards;cursor:none;pointer-events:none;}
+  .mark-glow svg{width:100%;height:auto;overflow:visible;}
+  .mark-glow .mark-arrow, .mark-glow .mark-v{
+    pointer-events:visiblePainted;cursor:none;transform-box:fill-box;
+    transition:transform 0.55s cubic-bezier(0.16,1,0.3,1),filter 0.55s ease;
+  }
+  .mark-glow .mark-arrow{transform-origin:50% 50%;}
+  .mark-glow .mark-v{transform-origin:50% 100%;}
+  /* the hover "lift" lives on a wrapping <g>, separate from the polygon's
+     own transform (used by the click animation below). Two elements, two
+     transforms that compose additively — so if you're still hovering when
+     the arrow flies back into place, it settles straight into the lifted
+     position instead of snapping there afterward in a second, jarring step. */
+  .mark-glow .mark-arrow-lift{transform-box:fill-box;transform-origin:50% 50%;transition:transform 0.55s cubic-bezier(0.16,1,0.3,1);}
+  /* entrance-only: scoped to a class removed once it finishes, so the page-load
+     fade never has a stale "animation" declaration left in the cascade for a
+     later interaction (e.g. the click animation below) to fall back into and
+     accidentally replay */
+  .mark-glow .mark-arrow.entering{opacity:0;animation:blurInFade 0.8s ease 0.65s forwards;}
+  .mark-glow .mark-v.entering{opacity:0;animation:blurInFade 0.9s ease 0.45s forwards;}
+  .mark-glow:hover .mark-arrow-lift{transform:translateY(-8px);}
+  .mark-glow:hover .mark-v{transform:scale(1.015);}
+  @keyframes blurIn{0%{opacity:0;filter:blur(14px);transform:translateY(10px);}100%{opacity:1;filter:blur(0);transform:translateY(0);}}
+  @keyframes blurInFade{0%{opacity:0;filter:blur(14px);}100%{opacity:1;filter:blur(0);}}
+
+  /* click the logo: one continuous, quiet motion — no glow, no flash,
+     no bounce. The arrow eases out and up, fading as it goes, then
+     reappears from inside the V and glides back into place on the
+     same settle curve used elsewhere on the site. Two smooth curves,
+     nothing else. */
+  .mark-glow .mark-arrow.rocket{animation:arrowLaunch 1.15s both;}
+  @keyframes arrowLaunch{
+    0%  {transform:translateY(0)      scale(1);   opacity:1; animation-timing-function:cubic-bezier(0.45,0,0.2,1);}
+    42% {transform:translateY(-120px) scale(0.6); opacity:0; animation-timing-function:linear;}
+    43% {transform:translateY(42px)   scale(0.6); opacity:0; animation-timing-function:cubic-bezier(0.16,1,0.3,1);}
+    100%{transform:translateY(0)      scale(1);   opacity:1;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mark-glow .mark-arrow.rocket{animation:none;}
+  }
+
+  .hero h1{font-size:clamp(2.4rem, 5.4vw, 4rem);font-weight:400;line-height:1.15;max-width:760px;
+    opacity:0;animation:fadeUp 0.9s ease 0.55s forwards;}
+  .cycle{position:relative;display:inline-block;color:var(--yellow);font-family:'Instrument Serif', serif;font-style:italic;font-size:clamp(3rem, 6.4vw, 5rem);vertical-align:-0.07em;white-space:nowrap;transition:width 0.45s cubic-bezier(0.4,0,0.2,1);}
+  .cycle-measure{position:absolute;visibility:hidden;white-space:nowrap;pointer-events:none;left:-9999px;top:0;}
+  .cycle span{display:inline-block;animation:wordIn 0.65s cubic-bezier(0.2,0.8,0.2,1);}
+  @keyframes wordIn{0%{opacity:0;transform:translateY(14px);}100%{opacity:1;transform:translateY(0);}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+  .hero p.sub{margin-top:20px;color:var(--gray);font-size:15px;letter-spacing:0.02em;
+    opacity:0;animation:fadeUp 0.9s ease 0.8s forwards;}
+
+  .scroll-cue{margin-top:64px;width:1px;height:44px;background:linear-gradient(var(--gray-dim), transparent);
+    opacity:0;animation:fadeUp 0.9s ease 1.1s forwards;position:relative;overflow:hidden;}
+  .scroll-cue::after{content:'';position:absolute;top:-44px;left:0;width:100%;height:44px;background:linear-gradient(var(--yellow), transparent);animation:trickle 2.2s ease-in-out infinite;}
+  @keyframes trickle{0%{top:-44px;}100%{top:44px;}}
+
+  section{padding:clamp(100px,12vw,168px) 0;position:relative;z-index:2;}
+
+  /* ================= WHY ZOV EXISTS ================= */
+  /* a plain editorial split — kicker/heading on the left, a single hairline
+     rule, then the body copy. No ornamentation beyond that one line. */
+  .why-split{display:grid;grid-template-columns:0.85fr 1fr;gap:clamp(40px,7vw,90px);align-items:start;}
+  @media (max-width:800px){.why-split{grid-template-columns:1fr;gap:28px;}}
+  .why-split .why-body{padding-left:clamp(28px,4vw,56px);border-left:1px solid var(--border);}
+  @media (max-width:800px){.why-split .why-body{padding-left:0;border-left:none;}}
+  .why-body p{font-size:16px;line-height:1.85;color:var(--gray);max-width:440px;}
+  .why-cta{display:inline-flex;align-items:center;gap:8px;margin-top:28px;font-size:14px;font-weight:600;color:var(--paper);}
+  .why-cta span{transition:transform 0.3s cubic-bezier(0.2,0.8,0.2,1);}
+  .why-cta:hover{color:var(--yellow);}
+  .why-cta:hover span{transform:translateX(5px);}
+
+  /* ================= SECTION HEADING (shared kicker + title) ================= */
+  .section-head{margin-bottom:64px;max-width:640px;}
+  .section-head-center{margin-left:auto;margin-right:auto;text-align:center;}
+  .section-head-center .section-kicker{justify-content:center;}
+  .section-kicker{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+  .kicker-num{font-family:'Instrument Serif', serif;font-style:italic;font-size:23px;color:var(--yellow);line-height:1;}
+  .kicker-line{display:inline-block;height:1px;background:var(--border-hi);width:0;transition:width 0.9s cubic-bezier(0.2,0.8,0.2,1) 0.15s;}
+  .in .kicker-line{width:44px;}
+  .kicker-label{font-size:13px;font-weight:500;letter-spacing:0.01em;color:var(--gray-dim);}
+  .section-title{font-size:clamp(1.5rem,2.8vw,2.1rem);font-weight:500;line-height:1.35;color:var(--paper);}
+  .section-title em{font-family:'Instrument Serif', serif;font-style:italic;font-weight:400;color:var(--yellow);}
+  .section-title-lg{font-size:clamp(1.8rem,3.6vw,2.7rem);}
+
+  .hl-shimmer{
+    font-family:'Instrument Serif', serif;font-style:italic;font-weight:400;
+    color:var(--yellow);
+  }
+  .section-sub{font-size:15px;line-height:1.65;color:var(--gray);max-width:480px;margin-top:16px;}
+  /* subtitle settles in just after the heading's words finish rising */
+  .section-head-center .section-sub{
+    opacity:0;transform:translateY(14px);
+    transition:opacity 0.7s ease 0.5s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.5s;
+  }
+  .section-head-center.in .section-sub{opacity:1;transform:translateY(0);}
+
+  /* word-mask reveal — each word rises out of a hidden strip on its own
+     delay, rather than the whole line fading up as one flat block */
+  .section-head-center.reveal{opacity:1;transform:none;}
+  .word-mask{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:0.1em;margin-bottom:-0.1em;}
+  .word-inner{
+    display:inline-block;transform:translateY(115%);opacity:0;
+    transition:transform 0.4s ease, opacity 0.6s ease, color 0.25s ease;
+  }
+  /* only the one-time entrance gets the slow, staggered timing — stripped
+     off (see JS) once each word finishes rising, so hover afterward feels
+     immediate instead of inheriting this delay */
+  .word-inner.stagger{
+    transition-duration:0.85s, 0.6s, 0.25s;
+    transition-timing-function:cubic-bezier(0.16,1,0.3,1), ease, ease;
+    transition-delay:calc(var(--i, 0) * 0.06s);
+  }
+  .section-head-center.in .word-inner{transform:translateY(0);opacity:1;}
+  /* per-word hover — a quiet lift + brighten, no cursor position tracking */
+  .word-mask:hover .word-inner{transform:translateY(-3px);color:#fff;}
+
+  /* growth ticks — small marks rising directly beneath the words
+     "purposeful growth", literally growth, placed exactly where it's said */
+  .growth-anchor{position:relative;display:inline-block;}
+  .growth-ticks{
+    position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);
+    display:flex;gap:6px;pointer-events:none;
+    opacity:0;transition:opacity 0.7s ease 1.35s;
+  }
+  .section-head-center.in .growth-ticks{opacity:1;}
+  .growth-tick{
+    width:2px;height:14px;border-radius:2px;
+    background:linear-gradient(to top, var(--yellow), transparent);
+    animation:tickRise 3.6s ease-in-out infinite;
+    animation-delay:calc(var(--i, 0) * 0.4s);
+  }
+  @keyframes tickRise{
+    0%{transform:translateY(6px);opacity:0;}
+    20%{opacity:0.55;}
+    75%{opacity:0.15;}
+    100%{transform:translateY(-16px);opacity:0;}
+  }
+
+  /* ================= SELECTED WORK ================= */
+  /* a real card deck — four cards resting on one another, only the front
+     one interactive. Drag/swipe it away and it re-files itself at the back
+     of the deck, promoting the next card forward. No hover-fight between
+     overlapping cards since only the top card ever receives pointer events. */
+  .work-stack{
+    position:relative;z-index:1;
+    height:clamp(470px,60vw,620px);
+    max-width:740px;margin:0 auto;
+    isolation:isolate;
+    touch-action:pan-y;
+  }
+  .work-card{
+    position:absolute;top:50%;left:50%;
+    width:clamp(335px,45vw,535px);
+    aspect-ratio:16/10.5;
+    display:block;border-radius:20px;overflow:hidden;
+    background:var(--surface);border:1px solid var(--border);
+    box-shadow:0 26px 46px -28px rgba(0,0,0,0.65);
+    /* centering lives in the transform (not margin), so the same rule works
+       at any card width — mobile included — without separate offsets */
+    transform:translate(-50%,-50%) translate(var(--x,0),var(--y,0)) rotate(var(--r,0deg));
+    transition:transform 0.6s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease, border-color 0.4s ease, opacity 0.45s ease;
+    z-index:var(--z,1);
+    -webkit-user-select:none;user-select:none;
+    pointer-events:none;
+    /* kill the browser's own tap-highlight rectangle — it ignores the
+       card's rounded corners and flashes as a sharp-edged box; our own
+       .work-ripple (below) replaces it with one shaped to the card */
+    -webkit-tap-highlight-color:transparent;
+  }
+  .work-card.front{pointer-events:auto;}
+  .work-card.front.dragging{transition:box-shadow 0.4s ease, border-color 0.4s ease;}
+  .work-card.flying{transition:transform 0.5s cubic-bezier(0.4,0,0.7,1), opacity 0.5s ease;}
+  /* inkwell-style touch feedback — a soft circle grows from the press point
+     and fades out, clipped to the card's own rounded corners since it's
+     just another child of the overflow:hidden card */
+  .work-ripple{
+    position:absolute;border-radius:50%;
+    background:radial-gradient(circle, rgba(245,244,239,0.32) 0%, rgba(245,244,239,0) 72%);
+    transform:scale(0);opacity:1;pointer-events:none;
+    animation:workRipple 1.1s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  @keyframes workRipple{
+    0%{transform:scale(0);opacity:0.6;}
+    100%{transform:scale(1);opacity:0;}
+  }
+  .work-visual{position:relative;width:100%;height:100%;overflow:hidden;background:#0a0a0b;}
+  .work-visual img{width:100%;height:100%;object-fit:cover;-webkit-user-drag:none;transition:transform 0.7s cubic-bezier(0.2,0.8,0.2,1),filter 0.5s ease;filter:saturate(0.85) brightness(0.82);}
+  .work-visual::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(to top, rgba(6,6,7,0.88) 0%, rgba(6,6,7,0.35) 42%, rgba(6,6,7,0.05) 68%);
+    pointer-events:none;
+  }
+  .work-num{
+    position:absolute;top:16px;left:18px;z-index:1;
+    font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--paper);
+    opacity:0.55;transition:opacity 0.4s ease,color 0.4s ease;
+  }
+  .work-meta{position:absolute;left:20px;right:20px;bottom:18px;z-index:1;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;}
+  .work-meta h3{font-size:18px;font-weight:600;color:var(--paper);}
+  .work-meta span{display:block;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.07em;margin-top:5px;}
+  .work-arrow{
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    opacity:0.5;transform:translateX(0);
+    transition:opacity 0.35s ease, transform 0.35s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .work-arrow svg{width:20px;height:20px;stroke:var(--paper);}
+
+  /* front card only: a quiet lift, no color, no scale — dragging starts
+     from exactly where the eye left it */
+  .work-card.front:hover{border-color:var(--border-hi);}
+  .work-card.front:hover .work-visual img{transform:scale(1.03);filter:saturate(1) brightness(0.9);}
+  .work-card.front:hover .work-num{opacity:1;}
+  .work-card.front:hover .work-arrow{opacity:1;transform:translateX(4px);}
+
+  .stack-hint{
+    /* deliberately NOT positioned — same as .work-cta-row below it — so a
+       dragged card (which lives inside the positioned, isolated
+       .work-stack) always paints above this text instead of under it */
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    margin-top:8px;font-size:12px;color:var(--gray-dim);
+    letter-spacing:0.02em;
+    opacity:0;transition:opacity 0.6s ease 0.3s;
+  }
+  .stack-hint.in{opacity:1;}
+  .stack-hint svg{width:15px;height:15px;stroke:var(--gray-dim);flex-shrink:0;}
+
+  @media (max-width:760px){
+    /* same swipeable deck, just sized to fit a phone screen. The fanned-out
+       back cards need more side clearance than the page's 32px edge padding
+       leaves, so the stack reclaims a slice of it (bleeds slightly wider
+       than .wrap) instead of shrinking the cards down to fit inside it */
+    .work-stack{
+      height:280px;max-width:none;
+      width:calc(100% + 32px);margin-left:-16px;margin-right:-16px;
+    }
+    .work-card{width:min(250px,72vw);}
+  }
+  .work-cta-row{margin-top:44px;display:flex;justify-content:center;}
+
+  /* ================= PILLARS MOTION (connected, drifting nodes) ================= */
+  .pillars-motion{position:relative;width:100%;height:410px;}
+  /* canvas intentionally bleeds 140px past the box on every side — keep in
+     sync with MARGIN_X/MARGIN_Y in the pillars constellation script. Safe to
+     bleed horizontally again now that html/body properly clip overflow-x
+     (see those rules) instead of letting it widen the mobile layout viewport */
+  .pillars-motion canvas{position:absolute;top:-140px;left:-140px;pointer-events:none;}
+  .pillar-node{
+    position:absolute;left:0;top:0;width:14px;height:14px;
+    cursor:none;
+  }
+  .pillar-dot{
+    position:absolute;inset:0;border-radius:50%;background:var(--yellow);
+    box-shadow:0 0 0 rgba(255,204,0,0);
+    transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.4s ease;
+  }
+  .pillar-node.active .pillar-dot{transform:scale(1.7);box-shadow:0 0 22px 6px rgba(255,204,0,0.35);}
+  /* no boxed backdrop — a soft text-shadow halo (same color as the page)
+     quietly pushes back any mesh line crossing behind the letters */
+  .pillar-node-label{
+    position:absolute;left:50%;top:calc(100% + 14px);transform:translateX(-50%);
+    white-space:nowrap;font-size:12.5px;font-weight:600;color:var(--gray);
+    text-shadow:0 0 4px var(--bg), 0 0 8px var(--bg);
+    transition:color 0.3s ease;
+  }
+  .pillar-node.active .pillar-node-label{color:var(--paper);}
+  .pillar-node.label-top .pillar-node-label{top:auto;bottom:calc(100% + 14px);}
+  .pillar-node-tag{
+    position:absolute;left:50%;top:calc(100% + 38px);width:180px;text-align:center;
+    font-size:12.5px;line-height:1.55;color:var(--gray);
+    text-shadow:0 0 4px var(--bg), 0 0 8px var(--bg);
+    opacity:0;pointer-events:none;
+    transform:translateX(-50%) translateY(-6px);
+    transition:opacity 0.35s ease, transform 0.35s ease;
+  }
+  .pillar-node.active .pillar-node-tag{opacity:1;transform:translateX(-50%) translateY(0);}
+  /* tag rides above the label too, so it never overlaps the lines
+     converging below a label-top node (e.g. Growth, at the peak) */
+  .pillar-node.label-top .pillar-node-tag{
+    top:auto;bottom:calc(100% + 40px);
+    transform:translateX(-50%) translateY(6px);
+  }
+  .pillar-node.label-top.active .pillar-node-tag{transform:translateX(-50%) translateY(0);}
+  @media (max-width:640px){
+    .pillars-motion{height:450px;}
+    .pillar-node-label{font-size:11px;top:calc(100% + 10px);}
+    .pillar-node.label-top .pillar-node-label{top:auto;bottom:calc(100% + 10px);}
+    .pillar-node-tag{width:128px;font-size:11.5px;top:calc(100% + 30px);}
+    .pillar-node.label-top .pillar-node-tag{top:auto;bottom:calc(100% + 34px);}
+  }
+
+  /* ================= EXPLORE ROW: edge-to-edge scrolling lane ================= */
+  .explore-row{width:100%;}
+
+  .marquee-outer{
+    width:100%;overflow-x:auto;overflow-y:hidden;
+    display:flex;align-items:center;
+    padding:26px 0 48px;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    scrollbar-width:none;-ms-overflow-style:none;
+    touch-action:pan-y;
+  }
+  .marquee-outer::-webkit-scrollbar{display:none;}
+  .marquee-track{display:flex;gap:16px;width:max-content;padding:0 24px;user-select:none;-webkit-user-select:none;}
+  .marquee-track a{-webkit-user-drag:none;-webkit-touch-callout:none;}
+
+  .explore-card{
+    width:300px;flex-shrink:0;
+    border-radius:24px;padding:30px 26px;min-height:190px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    transition:transform 0.35s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease;
+  }
+  .explore-card:hover{transform:translateY(-6px);}
+  .explore-card.dark{background:var(--surface);border:1px solid var(--border);}
+  .explore-card.dark:hover{border-color:var(--border-hi);box-shadow:0 20px 40px -20px rgba(255,204,0,0.15);}
+  .explore-card h3{font-size:19px;font-weight:600;}
+  .explore-card .e-tag{font-size:13.5px;color:var(--gray);line-height:1.5;margin-top:10px;}
+  .explore-card .e-sub{font-size:12.5px;color:var(--yellow);font-weight:500;margin-top:18px;}
+
+  /* ================= JOURNEY (motion graphic) ================= */
+  /* ================= SIGNAL (motion graphic) ================= */
+  .signal-wrap{width:100%;height:340px;position:relative;}
+  .signal-wrap canvas{display:block;width:100%;height:100%;}
+  @media (max-width:640px){.signal-wrap{height:240px;}}
+
+  /* ================= FOOTER ================= */
+  footer{background:var(--surface);border-radius:32px;max-width:var(--maxw);margin:0 auto;padding:60px 40px 30px;position:relative;z-index:2;}
+  .footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:40px;margin-bottom:64px;}
+  .footer-left{display:flex;flex-direction:column;gap:22px;}
+  .footer-mark{display:flex;align-items:center;gap:8px;}
+  .footer-mark svg{width:20px;height:auto;}
+  .footer-mark span{font-weight:600;font-size:17px;}
+  .footer-tag{font-size:13.5px;color:var(--gray);}
+  .get-touch{display:flex;align-items:center;background:var(--paper);border-radius:999px;padding:4px 4px 4px 20px;gap:16px;color:var(--bg);width:fit-content;transition:transform 0.3s ease;}
+  .get-touch:hover{transform:translateY(-3px);}
+  .get-touch span{font-size:13.5px;color:#555;}
+  .get-touch .arrow{width:34px;height:34px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .get-touch .arrow svg{width:14px;height:14px;}
+
+  .footer-cols{display:flex;gap:56px;flex-wrap:wrap;}
+  .footer-cols h4{font-weight:600;font-size:12.5px;margin-bottom:16px;color:var(--gray-dim);}
+  .footer-cols a{display:block;font-size:14px;color:var(--gray);margin-bottom:10px;transition:color 0.25s;}
+  .footer-cols a:hover{color:var(--yellow);}
+
+  .footer-bottom{border-top:1px solid var(--border);padding-top:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;font-size:11.5px;color:var(--gray-dim);}
+  .footer-social{display:flex;align-items:center;gap:10px;}
+  .footer-social a{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color 0.3s ease,background 0.3s ease,transform 0.35s cubic-bezier(0.2,0.8,0.2,1),box-shadow 0.35s ease;}
+  .footer-social a img{width:15px;height:15px;object-fit:contain;filter:invert(1);opacity:0.5;transition:filter 0.3s ease,opacity 0.3s ease;}
+  .footer-social a:hover{background:var(--yellow);border-color:var(--yellow);transform:translateY(-3px);box-shadow:0 8px 20px rgba(255,204,0,0.28);}
+  .footer-social a:hover img{filter:invert(0);opacity:1;}
+  @media (max-width:520px){.footer-bottom{justify-content:center;text-align:center;}}
+
+  body::after{content:'';display:block;height:24px;}
+
+  /* ================= TOP NAVIGATION ================= */
+  .nav{
+    /* left+right (not width:100%) — width:100% on a fixed element can
+       resolve against the mobile browser's layout viewport rather than the
+       actually-visible one, over-widening the bar and pushing right:32px
+       content (the menu icon) toward or past the true right edge */
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    padding:26px 0;border-bottom:1px solid transparent;
+    transition:background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease, padding 0.4s ease;
+  }
+  .nav.scrolled{
+    background:rgba(6,6,6,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border-bottom-color:var(--border);padding:16px 0;
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:center;position:relative;gap:28px;}
+  .nav-links{display:flex;align-items:center;gap:38px;list-style:none;}
+  .nav-link{position:relative;font-size:13.5px;font-weight:500;color:var(--gray);padding-bottom:4px;}
+  .nav-link::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--yellow);transition:width 0.35s cubic-bezier(0.2,0.8,0.2,1);}
+  .nav-link:hover{color:var(--paper);}
+  .nav-link:hover::after{width:100%;}
+
+  /* button keeps a generous 32px tap target; the visible icon itself is a
+     smaller, thinner set of lines centered within it — minimal, not a big
+     chunky hamburger */
+  .nav-toggle{
+    display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:32px;height:32px;flex-shrink:0;
+    position:absolute;right:32px;top:50%;transform:translateY(-50%);
+    background:none;border:none;padding:0;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent;
+  }
+  .nav-toggle span{display:block;width:18px;height:1px;background:var(--paper);transition:transform 0.35s ease, opacity 0.35s ease;}
+  body.nav-open .nav-toggle span:nth-child(1){transform:translateY(5px) rotate(45deg);}
+  body.nav-open .nav-toggle span:nth-child(2){opacity:0;}
+  body.nav-open .nav-toggle span:nth-child(3){transform:translateY(-5px) rotate(-45deg);}
+
+  .nav-mobile{
+    position:fixed;inset:0;z-index:150;background:var(--bg);overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity 0.4s ease;
+  }
+  .nav-mobile::before{
+    content:'';position:absolute;top:-14%;right:-16%;width:75%;height:48%;
+    background:radial-gradient(circle, rgba(255,204,0,0.10), transparent 70%);
+    pointer-events:none;
+  }
+  body.nav-open .nav-mobile{opacity:1;pointer-events:auto;}
+
+  .nav-mobile-links{position:relative;z-index:1;width:100%;max-width:440px;display:flex;flex-direction:column;padding:0 32px;}
+  .nav-mobile a{
+    position:relative;z-index:1;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:15px 0;border-bottom:1px solid var(--border);
+    opacity:0;transform:translateY(18px);
+    transition:opacity 0.5s cubic-bezier(0.2,0.8,0.2,1), transform 0.5s cubic-bezier(0.2,0.8,0.2,1), border-color 0.25s ease;
+  }
+  .nav-mobile-links a:first-child{border-top:1px solid var(--border);}
+  body.nav-open .nav-mobile a{opacity:1;transform:translateY(0);}
+  .nav-mobile a:nth-child(1){transition-delay:0.05s;}
+  .nav-mobile a:nth-child(2){transition-delay:0.1s;}
+  .nav-mobile a:nth-child(3){transition-delay:0.15s;}
+  .nav-mobile a:nth-child(4){transition-delay:0.2s;}
+  .nav-mobile a:nth-child(5){transition-delay:0.25s;}
+  .nav-mobile a:nth-child(6){transition-delay:0.3s;}
+  .nav-mobile a:hover{border-color:var(--border-hi);}
+  .nm-row{display:flex;align-items:baseline;gap:14px;}
+  .nm-num{font-family:'Poppins', sans-serif;font-weight:600;font-size:11.5px;color:var(--gray-dim);transition:color 0.25s ease;}
+  .nm-label{font-family:'Instrument Serif', serif;font-style:italic;font-size:clamp(1.7rem,7.5vw,2.5rem);color:var(--paper);transition:color 0.25s ease;}
+  .nm-arrow{font-size:17px;color:var(--gray-dim);transition:transform 0.3s cubic-bezier(0.2,0.8,0.2,1), color 0.25s ease;}
+  .nav-mobile a:hover .nm-num{color:var(--yellow);}
+  .nav-mobile a:hover .nm-label{color:var(--yellow);}
+  .nav-mobile a:hover .nm-arrow{color:var(--yellow);transform:translateX(4px);}
+
+  .nav-mobile-bottom{
+    position:relative;z-index:1;margin-top:36px;
+    display:flex;flex-direction:column;align-items:center;gap:18px;
+    opacity:0;transform:translateY(18px);
+    transition:opacity 0.5s ease 0.4s, transform 0.5s ease 0.4s;
+  }
+  body.nav-open .nav-mobile-bottom{opacity:1;transform:translateY(0);}
+  .nav-mobile-social{display:flex;align-items:center;gap:14px;font-size:11.5px;color:var(--gray-dim);text-transform:uppercase;letter-spacing:0.08em;}
+  .nav-mobile-social a:hover{color:var(--yellow);}
+  .nav-mobile-social .dot{width:3px;height:3px;border-radius:50%;background:var(--gray-dim);}
+
+  @media (max-width:860px){
+    .nav-links{display:none;}
+    .nav-toggle{display:flex;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="siteNav">
+  <div class="wrap nav-inner">
+    <div class="nav-links">
+      <a href="#" class="nav-link hoverable">Studio</a>
+      <a href="#" class="nav-link hoverable">Projects</a>
+      <a href="#" class="nav-link hoverable">Store</a>
+      <a href="#" class="nav-link hoverable">Labs</a>
+      <a href="#" class="nav-link hoverable">Blog</a>
+      <a href="#" class="nav-link hoverable">About</a>
+    </div>
+    <button class="nav-toggle hoverable" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <div class="nav-mobile-links">
+    <a href="#" class="hoverable"><span class="nm-row"><span class="nm-num">01</span><span class="nm-label">Studio</span></span><span class="nm-arrow">→</span></a>
+    <a href="#" class="hoverable"><span class="nm-row"><span class="nm-num">02</span><span class="nm-label">Projects</span></span><span class="nm-arrow">→</span></a>
+    <a href="#" class="hoverable"><span class="nm-row"><span class="nm-num">03</span><span class="nm-label">Store</span></span><span class="nm-arrow">→</span></a>
+    <a href="#" class="hoverable"><span class="nm-row"><span class="nm-num">04</span><span class="nm-label">Labs</span></span><span class="nm-arrow">→</span></a>
+    <a href="#" class="hoverable"><span class="nm-row"><span class="nm-num">05</span><span class="nm-label">Blog</span></span><span class="nm-arrow">→</span></a>
+    <a href="#" class="hoverable"><span class="nm-row"><span class="nm-num">06</span><span class="nm-label">About</span></span><span class="nm-arrow">→</span></a>
+  </div>
+  <div class="nav-mobile-bottom">
+    <div class="nav-mobile-social">
+      <a href="#" class="hoverable">Instagram</a>
+      <span class="dot"></span>
+      <a href="#" class="hoverable">LinkedIn</a>
+      <span class="dot"></span>
+      <a href="#" class="hoverable">Youtube</a>
+    </div>
+  </div>
+</div>
+
+<div id="cur"><svg viewBox="0 0 44.69 31.24" xmlns="http://www.w3.org/2000/svg"><polygon points="0 19.62, 9.53 31.24, 22.45 19.62, 35.35 31.24, 44.69 19.62, 22.45 0, 0 19.62"/></svg></div>
+
+<div id="customScroll" class="hoverable">
+  <div id="customScrollTrack">
+    <div id="customScrollThumb"></div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="mark-glow">
+    <svg viewBox="0 0 139.69 143.2" xmlns="http://www.w3.org/2000/svg">
+      <g class="mark-arrow-lift">
+        <polygon class="mark-arrow hoverable entering" fill="#f5f4ef" points="47.5 44.49 57.03 56.11 69.95 44.49 82.85 56.11 92.19 44.49 69.95 24.87 47.5 44.49"/>
+      </g>
+      <path class="mark-v hoverable entering" fill="#ffcc00" d="M70.12,143.2l63.51-81.72c3.93-5.05,6.06-11.27,6.06-17.66V0l-69.68,86.34L0,0v45.96c0,6.57,2.25,12.94,6.36,18.05l63.76,79.19Z"/>
+    </svg>
+  </div>
+  <h1><span class="cycle" id="cycleWord"><span>Create</span></span> with purpose.</h1>
+  <p class="sub">Design, ideas & systems.</p>
+  <div class="scroll-cue"></div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head section-head-center reveal" style="max-width:900px;margin-bottom:48px;">
+      <h2 class="section-title section-title-lg">
+        <span class="word-mask" style="--i:0"><span class="word-inner stagger">Building</span></span>
+        <span class="word-mask" style="--i:1"><span class="word-inner stagger">design,</span></span>
+        <span class="word-mask" style="--i:2"><span class="word-inner stagger">ideas,</span></span>
+        <span class="word-mask" style="--i:3"><span class="word-inner stagger">and</span></span>
+        <span class="word-mask" style="--i:4"><span class="word-inner stagger">systems</span></span>
+        <span class="word-mask" style="--i:5"><span class="word-inner stagger">for</span></span>
+        <span class="word-mask" style="--i:6"><span class="word-inner stagger"><span class="growth-anchor"><span class="hl-shimmer">purposeful growth</span><span class="growth-ticks" aria-hidden="true">
+          <span class="growth-tick" style="--i:0"></span>
+          <span class="growth-tick" style="--i:1"></span>
+          <span class="growth-tick" style="--i:2"></span>
+          <span class="growth-tick" style="--i:3"></span>
+          <span class="growth-tick" style="--i:4"></span>
+        </span></span></span><span class="word-mask" style="--i:7"><span class="word-inner stagger">.</span></span>
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="pillars-motion reveal fade-in" id="pillarsMotion" style="margin-top:40px;">
+      <canvas id="pillarsCanvas"></canvas>
+
+      <div class="pillar-node hoverable" data-i="0">
+        <span class="pillar-dot"></span>
+        <span class="pillar-node-label">Purpose</span>
+        <p class="pillar-node-tag">Everything begins with intention.</p>
+      </div>
+
+      <div class="pillar-node hoverable" data-i="1">
+        <span class="pillar-dot"></span>
+        <span class="pillar-node-label">Discipline</span>
+        <p class="pillar-node-tag">What you do daily shapes who you become.</p>
+      </div>
+
+      <div class="pillar-node hoverable label-top" data-i="2">
+        <span class="pillar-dot"></span>
+        <span class="pillar-node-label">Growth</span>
+        <p class="pillar-node-tag">Progress is earned, not&nbsp;wished&nbsp;for.</p>
+      </div>
+
+      <div class="pillar-node hoverable" data-i="3">
+        <span class="pillar-dot"></span>
+        <span class="pillar-node-label">Patience</span>
+        <p class="pillar-node-tag">What lasts takes time.</p>
+      </div>
+
+      <div class="pillar-node hoverable" data-i="4">
+        <span class="pillar-dot"></span>
+        <span class="pillar-node-label">Impact</span>
+        <p class="pillar-node-tag">Leave something behind that matters.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head section-head-center reveal" style="max-width:620px;margin-bottom:36px;">
+      <div class="section-kicker"><span class="kicker-line"></span><span class="kicker-label">Projects</span></div>
+      <h2 class="section-title section-title-lg">
+        <span class="word-mask" style="--i:0"><span class="word-inner stagger">Things</span></span>
+        <span class="word-mask" style="--i:1"><span class="word-inner stagger">we've</span></span>
+        <span class="word-mask" style="--i:2"><span class="word-inner stagger">brought</span></span>
+        <span class="word-mask" style="--i:3"><span class="word-inner stagger">to</span></span>
+        <span class="word-mask" style="--i:4"><span class="word-inner stagger"><em>life</em>.</span></span>
+      </h2>
+      <p class="section-sub" style="margin-left:auto;margin-right:auto;max-width:480px;">A selection of brands, products, experiments, and ideas created through ZOV.</p>
+    </div>
+
+    <div class="work-stack reveal" id="workStack">
+      <a href="#" class="work-card hoverable">
+        <div class="work-visual"><img src="assets/images/projects/Stride_Project.png" alt="Stride"></div>
+        <span class="work-num">01</span>
+        <div class="work-meta">
+          <div><h3>Stride</h3><span>Digital Product</span></div>
+          <span class="work-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a href="#" class="work-card hoverable">
+        <div class="work-visual"><img src="assets/images/projects/pexels-slendyalex-3745234.jpg" alt="Pulse"></div>
+        <span class="work-num">02</span>
+        <div class="work-meta">
+          <div><h3>Pulse</h3><span>Digital Product</span></div>
+          <span class="work-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a href="#" class="work-card hoverable">
+        <div class="work-visual"><img src="assets/images/projects/pexels-pixabay-66905.jpg" alt="Studio Work"></div>
+        <span class="work-num">03</span>
+        <div class="work-meta">
+          <div><h3>Studio Work</h3><span>Brand / Design</span></div>
+          <span class="work-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a href="#" class="work-card hoverable">
+        <div class="work-visual"><img src="assets/images/projects/pexels-padrinan-3391930.jpg" alt="ZOV Content"></div>
+        <span class="work-num">04</span>
+        <div class="work-meta">
+          <div><h3>ZOV Content</h3><span>Creative Direction / Media</span></div>
+          <span class="work-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a href="#" class="work-card hoverable">
+        <div class="work-visual"><img src="assets/images/misc/pexels-zeeshaanshabbir-6847139.jpg" alt="Night Signal"></div>
+        <span class="work-num">05</span>
+        <div class="work-meta">
+          <div><h3>Night Signal</h3><span>Motion Experiment</span></div>
+          <span class="work-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+    </div>
+
+    <p class="stack-hint reveal" id="stackHint">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3"/></svg>
+      Drag to explore
+    </p>
+
+    <div class="work-cta-row">
+      <a href="#" class="why-cta hoverable">View all projects <span>→</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="why-split">
+      <div class="section-head" style="margin-bottom:0;">
+        <div class="section-kicker"><span class="kicker-line"></span><span class="kicker-label">Why ZOV Exists</span></div>
+        <h2 class="section-title section-title-lg">Make things that <em>mean something</em>.</h2>
+      </div>
+      <div class="why-body">
+        <p>We believe creativity should do more than fill space. Whether it's a brand, an idea, a tool, or a piece of content, the goal stays the same: create with intention and leave something worthwhile behind.</p>
+        <a href="#" class="why-cta hoverable">About ZOV <span>→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-kicker"><span class="kicker-line"></span><span class="kicker-label">Explore</span></div>
+      <h2 class="section-title">Different paths, one <em>direction</em>.</h2>
+    </div>
+  </div>
+  <div class="explore-row">
+    <div class="marquee-outer" id="marqueeOuter">
+      <div class="marquee-track" id="marqueeTrack">
+        <a href="#" class="explore-card dark hoverable">
+          <div class="e-top">
+            <h3>Studio</h3>
+            <p class="e-tag">Creative work for meaningful brands.</p>
+          </div>
+          <div class="e-sub">Work with us →</div>
+        </a>
+        <a href="#" class="explore-card dark hoverable">
+          <div class="e-top">
+            <h3>Projects</h3>
+            <p class="e-tag">Ideas brought to life.</p>
+          </div>
+          <div class="e-sub">See what we've built →</div>
+        </a>
+        <a href="#" class="explore-card dark hoverable">
+          <div class="e-top">
+            <h3>Store</h3>
+            <p class="e-tag">Tools for purposeful growth.</p>
+          </div>
+          <div class="e-sub">Explore the store →</div>
+        </a>
+        <a href="#" class="explore-card dark hoverable">
+          <div class="e-top">
+            <h3>Labs</h3>
+            <p class="e-tag">Experiments in design, content, and code.</p>
+          </div>
+          <div class="e-sub">See what's brewing →</div>
+        </a>
+        <a href="#" class="explore-card dark hoverable">
+          <div class="e-top">
+            <h3>Blog</h3>
+            <p class="e-tag">Thoughts on purpose, discipline, and growth.</p>
+          </div>
+          <div class="e-sub">Read the blog →</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-bottom:0;">
+  <div class="signal-wrap">
+    <canvas id="signalCanvas"></canvas>
+  </div>
+</section>
+
+<div class="wrap" style="padding:0;">
+  <footer id="contact">
+    <div class="footer-top">
+      <div class="footer-left">
+        <div class="footer-mark">
+          <svg viewBox="0 0 139.69 143.2" xmlns="http://www.w3.org/2000/svg">
+            <polygon fill="#f5f4ef" points="47.5 44.49 57.03 56.11 69.95 44.49 82.85 56.11 92.19 44.49 69.95 24.87 47.5 44.49"/>
+            <path fill="#ffcc00" d="M70.12,143.2l63.51-81.72c3.93-5.05,6.06-11.27,6.06-17.66V0l-69.68,86.34L0,0v45.96c0,6.57,2.25,12.94,6.36,18.05l63.76,79.19Z"/>
+          </svg>
+          <span>ZOV</span>
+        </div>
+        <p class="footer-tag">An independent creative company.</p>
+        <a href="mailto:zohaib5ive@gmail.com" class="get-touch hoverable">
+          <span>Get in Touch with us</span>
+          <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="#ffcc00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M13 6l6 6-6 6"/></svg></div>
+        </a>
+      </div>
+
+      <div class="footer-cols">
+        <div>
+          <h4>Overview</h4>
+          <a class="hoverable" href="#">Home</a>
+          <a class="hoverable">Studio</a>
+          <a class="hoverable">Services</a>
+          <a class="hoverable">Reviews</a>
+          <a class="hoverable">About</a>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <a class="hoverable">Assets</a>
+          <a class="hoverable">Tutorials</a>
+          <a class="hoverable">Blog</a>
+          <a class="hoverable">Store</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; 2026 ZoV. All rights reserved.</span>
+      <div class="footer-social">
+        <a class="hoverable" href="#" aria-label="Facebook">
+          <img src="assets/icons/SocialMediaIcons/facebook-app-symbol.png" alt="" loading="lazy">
+        </a>
+        <a class="hoverable" href="https://instagram.com/zo5ive" target="_blank" rel="noopener" aria-label="Instagram">
+          <img src="assets/icons/SocialMediaIcons/instagram.png" alt="" loading="lazy">
+        </a>
+        <a class="hoverable" href="#" aria-label="Youtube">
+          <img src="assets/icons/SocialMediaIcons/youtube.png" alt="" loading="lazy">
+        </a>
+        <a class="hoverable" href="#" aria-label="Threads">
+          <img src="assets/icons/SocialMediaIcons/threads.png" alt="" loading="lazy">
+        </a>
+        <a class="hoverable" href="#" aria-label="LinkedIn">
+          <img src="assets/icons/SocialMediaIcons/linkedin.png" alt="" loading="lazy">
+        </a>
+        <a class="hoverable" href="#" aria-label="Linktree">
+          <img src="assets/icons/SocialMediaIcons/linktree.webp" alt="" loading="lazy">
+        </a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const words = ['Create', 'Grow', 'Live'];
+  let wi = 0;
+  const cycleEl = document.getElementById('cycleWord');
+
+  const measurer = document.createElement('span');
+  measurer.className = 'cycle cycle-measure';
+  document.body.appendChild(measurer);
+
+  function measureWidth(word){
+    measurer.textContent = word;
+    return measurer.getBoundingClientRect().width;
+  }
+
+  function setCycleWidth(){
+    cycleEl.style.width = measureWidth(words[wi]) + 'px';
+  }
+  setCycleWidth();
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(setCycleWidth);
+  }
+
+  setInterval(()=>{
+    wi = (wi+1) % words.length;
+    cycleEl.style.width = measureWidth(words[wi]) + 'px';
+    const span = document.createElement('span');
+    span.textContent = words[wi];
+    cycleEl.innerHTML = '';
+    cycleEl.appendChild(span);
+  }, 2200);
+
+  // hero logo entrance: once the page-load fade finishes, drop the class
+  // that declared it — otherwise it sits in the cascade as a fallback
+  // `animation`, and removing an unrelated class later (e.g. .rocket)
+  // would make the browser treat it as newly-applied and replay it
+  document.querySelectorAll('.mark-glow .entering').forEach(el=>{
+    el.addEventListener('animationend', function onEnter(e){
+      if(e.animationName !== 'blurInFade') return;
+      el.classList.remove('entering');
+      el.removeEventListener('animationend', onEnter);
+    });
+  });
+
+  // click the hero logo: the arrow rockets up and re-emerges, settling
+  // back into place — replays on each click, ignores clicks mid-flight
+  (function(){
+    const markGlow = document.querySelector('.mark-glow');
+    const arrow = document.querySelector('.mark-arrow');
+    if(!markGlow || !arrow) return;
+    let animating = false;
+    markGlow.addEventListener('click', ()=>{
+      if(animating) return;
+      animating = true;
+      arrow.classList.add('rocket');
+    });
+    arrow.addEventListener('animationend', (e)=>{
+      if(e.animationName !== 'arrowLaunch') return;
+      arrow.classList.remove('rocket');
+      animating = false;
+    });
+  })();
+
+  // custom page scrollbar — a real element, so its hover color can't be
+  // overridden by Chromium's Windows scrollbar theming the way ::-webkit-scrollbar can
+  (function(){
+    const outer = document.getElementById('customScroll');
+    const track = document.getElementById('customScrollTrack');
+    const thumb = document.getElementById('customScrollThumb');
+    if(!outer || !track || !thumb) return;
+
+    function metrics(){
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - window.innerHeight;
+      return { doc, trackHeight: track.clientHeight, scrollable: Math.max(1, scrollable) };
+    }
+
+    function update(){
+      const { doc, trackHeight, scrollable } = metrics();
+      const ratio = window.innerHeight / doc.scrollHeight;
+      const thumbHeight = Math.max(20, ratio * trackHeight);
+      const progress = doc.scrollTop / scrollable;
+      thumb.style.height = thumbHeight + 'px';
+      thumb.style.top = (progress * (trackHeight - thumbHeight)) + 'px';
+    }
+    update();
+    window.addEventListener('scroll', update, {passive:true});
+    window.addEventListener('resize', update);
+
+    // scroll-behavior:smooth on <html> would make scrollTop assignments animate
+    // instead of snapping instantly, which is what made dragging feel laggy —
+    // switch to 'auto' for the duration of any drag/seek, then restore it
+    function withInstantScroll(fn){
+      const prev = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      fn();
+      document.documentElement.style.scrollBehavior = prev;
+    }
+
+    // the whole wide margin (#outer) is the grabbable zone, not just the thin
+    // visual thumb. Grabbing the thumb itself tracks the cursor 1:1 (instant).
+    // Clicking elsewhere in the margin — where the cursor is nowhere near the
+    // thumb — eases to that spot instead of snapping, like a native scrollbar;
+    // if you then drag from there, it switches to following the cursor directly.
+    let dragging = false, downY = 0, isThumbGrab = false, moved = false;
+    const MOVE_THRESHOLD = 4; // px — ignores the tiny pointermove jitter a browser
+                               // fires right on click, which would otherwise cancel
+                               // the smooth ease-to-click animation instantly
+    function moveThumbTo(clientY, smooth){
+      const { doc, trackHeight, scrollable } = metrics();
+      const thumbHeight = thumb.offsetHeight;
+      const r = track.getBoundingClientRect();
+      const newTop = Math.max(0, Math.min(trackHeight - thumbHeight, clientY - r.top - thumbHeight / 2));
+      const target = (newTop / (trackHeight - thumbHeight)) * scrollable;
+      if(smooth){ doc.scrollTo({top: target, behavior:'smooth'}); }
+      else{ withInstantScroll(()=>{ doc.scrollTop = target; }); }
+    }
+    outer.addEventListener('pointerdown', e=>{
+      dragging = true; moved = false; downY = e.clientY;
+      isThumbGrab = e.target === thumb;
+      thumb.classList.add('dragging');
+      try{ outer.setPointerCapture(e.pointerId); }catch(err){}
+      moveThumbTo(e.clientY, !isThumbGrab);
+      e.preventDefault();
+    });
+    outer.addEventListener('pointermove', e=>{
+      if(!dragging) return;
+      if(isThumbGrab){ moveThumbTo(e.clientY, false); return; }
+      if(!moved && Math.abs(e.clientY - downY) < MOVE_THRESHOLD) return;
+      moved = true;
+      moveThumbTo(e.clientY, false);
+    });
+    function endDrag(){ dragging = false; thumb.classList.remove('dragging'); }
+    outer.addEventListener('pointerup', endDrag);
+    outer.addEventListener('pointercancel', endDrag);
+    outer.addEventListener('lostpointercapture', endDrag);
+  })();
+
+  // top nav — solid/blurred once scrolled past the hero, plus mobile menu toggle
+  (function(){
+    const nav = document.getElementById('siteNav');
+    const toggle = document.getElementById('navToggle');
+    const mobile = document.getElementById('navMobile');
+    if(!nav) return;
+
+    function onScroll(){ nav.classList.toggle('scrolled', window.scrollY > 40); }
+    onScroll();
+    window.addEventListener('scroll', onScroll, {passive:true});
+
+    if(toggle){
+      toggle.addEventListener('click', ()=>{
+        document.body.classList.toggle('nav-open');
+      });
+    }
+    if(mobile){
+      mobile.querySelectorAll('a').forEach(a=>{
+        a.addEventListener('click', ()=> document.body.classList.remove('nav-open'));
+      });
+    }
+  })();
+
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.12});
+  reveals.forEach(r=>io.observe(r));
+
+  // once each philosophy-statement word finishes its staggered entrance,
+  // drop the class carrying that slow/delayed transition — otherwise a
+  // later hover would inherit the same delay and duration, feeling laggy
+  // instead of immediate
+  document.querySelectorAll('.word-inner.stagger').forEach(el=>{
+    el.addEventListener('transitionend', function onEnter(e){
+      if(e.propertyName !== 'transform') return;
+      el.classList.remove('stagger');
+      el.removeEventListener('transitionend', onEnter);
+    });
+  });
+
+  // selected-work card deck — only the front card is draggable; swipe it
+  // far enough and it flies off and re-files itself at the back, promoting
+  // the next card. Small drags just spring back. Click still works as a
+  // normal link as long as the pointer never really moved.
+  (function(){
+    const stack = document.getElementById('workStack');
+    if(!stack) return;
+    const cards = Array.from(stack.querySelectorAll('.work-card'));
+    if(!cards.length) return;
+
+    // resting offsets by position in the deck, 0 = front/interactive.
+    // mobile gets its own, tighter fan — the desktop offsets are tuned
+    // against a roomy 560px-wide stack, but on a phone the same absolute
+    // px push the back cards past the edge of the (much narrower) screen
+    const SPOTS_DESKTOP = [
+      {x:0,   y:0,   r:0},
+      {x:16,  y:14,  r:-3.5},
+      {x:30,  y:26,  r:4.5},
+      {x:42,  y:37,  r:-6.5},
+      {x:52,  y:46,  r:8},
+    ];
+    const SPOTS_MOBILE = [
+      {x:0,  y:0,  r:0},
+      {x:9,  y:8,  r:-2.5},
+      {x:16, y:14, r:3},
+      {x:22, y:19, r:-4.5},
+      {x:27, y:23, r:5.5},
+    ];
+    const mq = window.matchMedia('(max-width:760px)');
+    let order = cards.slice();
+
+    function layout(){
+      const SPOTS = mq.matches ? SPOTS_MOBILE : SPOTS_DESKTOP;
+      order.forEach((card, i)=>{
+        const spot = SPOTS[Math.min(i, SPOTS.length-1)];
+        card.style.setProperty('--x', spot.x+'px');
+        card.style.setProperty('--y', spot.y+'px');
+        card.style.setProperty('--r', spot.r+'deg');
+        card.style.setProperty('--z', order.length - i);
+        card.classList.toggle('front', i===0);
+      });
+    }
+    window.addEventListener('resize', ()=>{ if(!drag) layout(); });
+    layout();
+
+    let drag = null; // {card, startX, startY, dx, dy, moved}
+
+    function onPointerMove(e){
+      if(!drag) return;
+      drag.dx = e.clientX - drag.startX;
+      drag.dy = e.clientY - drag.startY;
+      if(!drag.moved && (Math.abs(drag.dx) > 6 || Math.abs(drag.dy) > 6)) drag.moved = true;
+      if(drag.moved){
+        if(Math.abs(drag.dx) > Math.abs(drag.dy)) e.preventDefault();
+        const rot = drag.dx * 0.045;
+        drag.card.style.transform = `translate(calc(-50% + ${drag.dx}px), calc(-50% + ${drag.dy}px)) rotate(${rot}deg)`;
+      }
+    }
+
+    function onPointerUp(e){
+      if(!drag) return;
+      const card = drag.card;
+      const {dx, dy, moved} = drag;
+      card.classList.remove('dragging');
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
+
+      const THRESHOLD = 100;
+      if(moved && Math.abs(dx) > THRESHOLD){
+        card._justDragged = true;
+        const dir = dx > 0 ? 1 : -1;
+        card.classList.add('flying');
+        card.style.transform = `translate(calc(-50% + ${dir*760}px), calc(-50% + ${dy + dir*30}px)) rotate(${dir*22}deg)`;
+        card.style.opacity = '0';
+
+        // reorder + relayout RIGHT AWAY — the next card is promoted to
+        // front (and becomes draggable) immediately, instead of waiting for
+        // this card's fly-out to finish. layout() also updates this card's
+        // --x/--y/--r/--z to its new back-of-stack spot, but that has no
+        // visible effect yet since its inline transform (flying off-screen)
+        // still overrides the CSS-var one until the flight ends
+        order.push(order.shift());
+        layout();
+
+        card.addEventListener('transitionend', function onEnd(ev){
+          if(ev.propertyName !== 'opacity') return;
+          card.removeEventListener('transitionend', onEnd);
+          // now invisible — snap the position (unseen) onto the
+          // back-of-stack spot layout() already assigned it, then fade it
+          // back in there instead of popping straight to full opacity, so
+          // it settles into the deck rather than suddenly appearing
+          card.classList.remove('flying');
+          card.style.transition = 'none';
+          card.style.transform = '';
+          void card.offsetWidth;
+          card.style.transition = '';
+          card.style.opacity = '1';
+        });
+      } else {
+        if(moved) card._justDragged = true;
+        card.style.transform = '';
+      }
+      drag = null;
+    }
+
+    function spawnRipple(card, clientX, clientY){
+      const rect = card.getBoundingClientRect();
+      // big enough to fully cover the card corner-to-corner no matter
+      // where on it you pressed
+      const size = Math.max(rect.width, rect.height) * 2.2;
+      const ripple = document.createElement('span');
+      ripple.className = 'work-ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (clientX - rect.left - size/2) + 'px';
+      ripple.style.top = (clientY - rect.top - size/2) + 'px';
+      card.appendChild(ripple);
+      ripple.addEventListener('animationend', ()=> ripple.remove());
+    }
+
+    stack.addEventListener('pointerdown', (e)=>{
+      const card = e.target.closest('.work-card');
+      if(!card || card !== order[0]) return;
+      drag = {card, startX:e.clientX, startY:e.clientY, dx:0, dy:0, moved:false};
+      card.classList.add('dragging');
+      spawnRipple(card, e.clientX, e.clientY);
+      // pointer capture keeps the drag glued to this card on touch even if
+      // the finger drifts past its edges mid-swipe
+      if(card.setPointerCapture){ try{ card.setPointerCapture(e.pointerId); }catch(err){} }
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    });
+
+    cards.forEach(card=>{
+      card.addEventListener('click', (e)=>{
+        if(card._justDragged){ e.preventDefault(); card._justDragged = false; }
+      });
+      card.addEventListener('dragstart', e=> e.preventDefault());
+    });
+  })();
+
+  // pillars constellation — five named pillar dots share the exact same
+  // canvas and coordinate space as a field of small ambient dust, so both
+  // connect to whichever neighbor (big or small) is close enough, and read
+  // as one continuous system rather than a foreground layer over a backdrop
+  (function(){
+    const wrap = document.getElementById('pillarsMotion');
+    const canvas = document.getElementById('pillarsCanvas');
+    if(!wrap || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    const nodes = Array.from(wrap.querySelectorAll('.pillar-node'));
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isFinePointer = window.matchMedia('(pointer: fine)').matches;
+    let W, H, DPR, dust = [];
+
+    // genuinely scattered, star-chart positions — no even spacing, no
+    // left-to-right order, just an irregular shape with enough breathing
+    // room between points that labels/icons never collide
+    const layout = [
+      {xf: 0.10, yf: 0.55},
+      {xf: 0.34, yf: 0.78},
+      {xf: 0.50, yf: 0.25},
+      {xf: 0.72, yf: 0.60},
+      {xf: 0.90, yf: 0.30}
+    ];
+    const phaseX = nodes.map((_, i) => i * 0.9);
+    const phaseY = nodes.map((_, i) => i * 1.7 + 0.6);
+    const pos = nodes.map(() => ({x: 0, y: 0}));
+
+    function getLayout(){
+      const scale = W < 480 ? 0.82 : 1;
+      return layout.map(n => ({
+        xf: 0.5 + (n.xf - 0.5) * scale,
+        yf: n.yf
+      }));
+    }
+
+    // the canvas is drawn oversized, bleeding MARGIN_Y px past the section
+    // above/below — so a line still reaching for the cursor just above/below
+    // the section never gets clipped at the section's own edge. No
+    // horizontal bleed: a canvas wider than the section (even one that's
+    // clipped visually) can make mobile browsers widen their whole layout
+    // viewport to fit it, dragging fixed-position UI elsewhere off-screen
+    const MARGIN_X = 140, MARGIN_Y = 140;
+
+    function resize(){
+      // mobile browsers fire 'resize' when the address bar hides/shows on
+      // scroll — that only changes viewport HEIGHT, not width. Re-rolling
+      // the dust field's random positions on every one of those made the
+      // whole constellation look like it was restarting mid-scroll, so only
+      // regenerate dust when the width actually changed (a real layout resize)
+      const newW = wrap.clientWidth, newH = wrap.clientHeight;
+      const widthChanged = newW !== W;
+      W = newW; H = newH;
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = (W + MARGIN_X * 2) * DPR; canvas.height = (H + MARGIN_Y * 2) * DPR;
+      canvas.style.width = (W + MARGIN_X * 2) + 'px'; canvas.style.height = (H + MARGIN_Y * 2) + 'px';
+      // shift the drawing origin so (0,0) in our usual wrap-space coordinates
+      // still lands exactly on the wrap's own top-left, despite the canvas
+      // element itself now starting MARGIN_Y/MARGIN_X above/left of it
+      ctx.setTransform(DPR, 0, 0, DPR, MARGIN_X * DPR, MARGIN_Y * DPR);
+      if(widthChanged || !dust.length){
+        const count = Math.max(18, Math.round((W * H) / 22000));
+        dust = Array.from({length: count}, () => ({
+          x: Math.random() * W, y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.14, vy: (Math.random() - 0.5) * 0.14
+        }));
+      }
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let mx = -9999, my = -9999;
+    document.addEventListener('mousemove', e => {
+      const r = wrap.getBoundingClientRect();
+      mx = e.clientX - r.left; my = e.clientY - r.top;
+    });
+
+    function update(t){
+      const lay = getLayout();
+      const ampX = Math.min(10, W * 0.02);
+      const ampY = Math.min(12, H * 0.03);
+      lay.forEach((n, i) => {
+        const x = n.xf * W + Math.sin(t * 0.0006 + phaseX[i]) * ampX;
+        const y = n.yf * H + Math.sin(t * 0.0008 + phaseY[i]) * ampY;
+        pos[i] = {x, y};
+        // transform, not left/top — avoids forcing a layout reflow every frame
+        nodes[i].style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+      });
+      dust.forEach(d => {
+        d.x += d.vx; d.y += d.vy;
+        if(d.x < 0 || d.x > W) d.vx *= -1;
+        if(d.y < 0 || d.y > H) d.vy *= -1;
+      });
+    }
+
+    function draw(){
+      ctx.clearRect(-MARGIN_X, -MARGIN_Y, W + MARGIN_X * 2, H + MARGIN_Y * 2);
+      const connectDist = Math.min(150, Math.max(W, H) * 0.16);
+
+      // one shared field: dust-to-dust, dust-to-pillar, pillar-to-pillar —
+      // any pair close enough connects, so the big dots read as brighter
+      // hubs inside the same mesh rather than a separate foreground layer
+      const all = dust.map(d => ({x: d.x, y: d.y, big: false}))
+        .concat(pos.map(p => ({x: p.x, y: p.y, big: true})));
+      for(let i = 0; i < all.length; i++){
+        for(let j = i + 1; j < all.length; j++){
+          const a = all[i], b = all[j];
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          if(dist >= connectDist) continue;
+          const near = 1 - dist / connectDist;
+          const isBigPair = a.big || b.big;
+          const alpha = near * (isBigPair ? 0.30 : 0.13);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = isBigPair ? `rgba(255,204,0,${alpha})` : `rgba(245,244,239,${alpha})`;
+          ctx.lineWidth = isBigPair ? 1.1 : 1;
+          ctx.stroke();
+        }
+        const a = all[i];
+        const dmx = a.x - mx, dmy = a.y - my, dm = Math.hypot(dmx, dmy);
+        if(dm < 130){
+          ctx.strokeStyle = `rgba(255,204,0,${(1 - dm / 130) * 0.3})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mx, my); ctx.stroke();
+        }
+      }
+
+      // a quieter golden thread through the pillars in order — a wider,
+      // fainter pass underneath fakes a glow without shadowBlur (expensive
+      // to redraw every frame)
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      pos.forEach((p, i) => { i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); });
+      ctx.strokeStyle = 'rgba(255,204,0,0.06)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.beginPath();
+      pos.forEach((p, i) => { i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); });
+      ctx.strokeStyle = 'rgba(255,204,0,0.32)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      dust.forEach(d => {
+        ctx.beginPath(); ctx.arc(d.x, d.y, 1.4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,204,0,0.35)'; ctx.fill();
+      });
+    }
+
+    let raf, running = false;
+    function loop(t){
+      update(t);
+      draw();
+      raf = requestAnimationFrame(loop);
+    }
+    function start(){ if(running || reduceMotion) return; running = true; raf = requestAnimationFrame(loop); }
+    function stop(){ running = false; if(raf) cancelAnimationFrame(raf); }
+    if(reduceMotion){ update(0); draw(); }
+    else {
+      const section = wrap.closest('section');
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => e.isIntersecting ? start() : stop());
+      }, {threshold: 0.05});
+      io.observe(section);
+    }
+
+    nodes.forEach(el => {
+      if(isFinePointer){
+        el.addEventListener('mouseenter', () => el.classList.add('active'));
+        el.addEventListener('mouseleave', () => el.classList.remove('active'));
+      } else {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          const wasActive = el.classList.contains('active');
+          nodes.forEach(n => n.classList.remove('active'));
+          if(!wasActive) el.classList.add('active');
+        });
+      }
+    });
+  })();
+
+  const isFine = window.matchMedia('(pointer: fine)').matches;
+  if(!isFine){ document.body.classList.add('touch'); }
+  else {
+    const cur = document.getElementById('cur');
+    let x=window.innerWidth/2, y=window.innerHeight/2, cx=x, cy=y;
+    window.addEventListener('pointermove', e=>{
+      x=e.clientX; y=e.clientY;
+      if(!cur.classList.contains('visible')){
+        cx=x; cy=y;
+        cur.classList.add('visible');
+      }
+    });
+    document.addEventListener('mouseleave', ()=>cur.classList.remove('visible'));
+    function loop(){
+      cx += (x-cx)*0.2; cy += (y-cy)*0.2;
+      cur.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
+      requestAnimationFrame(loop);
+    }
+    loop();
+    document.querySelectorAll('.hoverable').forEach(el=>{
+      el.addEventListener('mouseenter', ()=>cur.classList.add('big'));
+      el.addEventListener('mouseleave', ()=>cur.classList.remove('big'));
+    });
+  }
+
+  // click-ring — one thin ring, one motion, one easing curve: quietly
+  // expands and dissolves wherever the user clicks empty space.
+  (function(){
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduceMotion) return;
+
+    function spawn(x,y){
+      const el = document.createElement('div');
+      el.className = 'click-ring';
+      el.style.left = x+'px';
+      el.style.top = y+'px';
+      document.body.appendChild(el);
+
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{ el.classList.add('expand'); });
+      });
+
+      el.addEventListener('transitionend', ()=>el.remove(), { once:true });
+      setTimeout(()=>{ if(el.parentNode) el.remove(); }, 750);
+    }
+
+    document.addEventListener('click', e=>{
+      if(e.target.closest('.hoverable, a, button, input, textarea, select, label')) return;
+      spawn(e.clientX, e.clientY);
+    });
+  })();
+
+  // signal motion graphic — layered flowing wave lines, continuous, stateless per frame
+  (function(){
+    const canvas = document.getElementById('signalCanvas');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let W, H, DPR;
+
+    function resize(){
+      W = wrap.clientWidth; H = wrap.clientHeight;
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = W * DPR; canvas.height = H * DPR;
+      canvas.style.width = W+'px'; canvas.style.height = H+'px';
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+
+    const layers = [
+      {amp:28, freq:0.0022, speed:0.0011, yOff:0.62, width:1,   glow:0,  color:'rgba(245,244,239,0.10)'},
+      {amp:36, freq:0.0017, speed:0.0018, yOff:0.50, width:1.4, glow:10, color:'rgba(255,204,0,0.28)'},
+      {amp:22, freq:0.0027, speed:0.0026, yOff:0.42, width:1.8, glow:18, color:'rgba(255,220,120,0.9)'}
+    ];
+
+    // cursor reach — only active near this component, fades in/out smoothly
+    let rawX = null, rawY = null, active = 0, targetActive = 0;
+    document.addEventListener('mousemove', e=>{
+      const r = wrap.getBoundingClientRect();
+      const nearVertically = e.clientY > r.top - 100 && e.clientY < r.bottom + 100;
+      if(nearVertically){
+        rawX = e.clientX - r.left; rawY = e.clientY - r.top;
+        targetActive = 1;
+      } else {
+        targetActive = 0;
+      }
+    });
+
+    function drawWave(l, t){
+      const midY = H * l.yOff;
+      ctx.beginPath();
+      for(let x=0; x<=W; x+=4){
+        let y = midY + Math.sin(x*l.freq + t*l.speed) * l.amp
+                      + Math.sin(x*l.freq*2.3 - t*l.speed*0.6) * l.amp*0.25;
+        if(active > 0.01 && rawX !== null){
+          const dx = x - rawX;
+          const dy = y - rawY;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          const pull = Math.exp(-(dist*dist)/(2*160*160)) * active * 0.85;
+          const targetY = Math.max(6, Math.min(H-6, rawY));
+          y = y + (targetY - y) * pull;
+        }
+        y = Math.max(2, Math.min(H-2, y));
+        x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle = l.color;
+      ctx.lineWidth = l.width;
+      if(l.glow){ ctx.shadowColor = l.color; ctx.shadowBlur = l.glow; } else { ctx.shadowBlur = 0; }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    function frame(t){
+      active += (targetActive - active) * 0.06;
+      ctx.clearRect(0,0,W,H);
+      layers.forEach(l => drawWave(l, t));
+    }
+
+    let raf;
+    function loop(t){ frame(t); raf = requestAnimationFrame(loop); }
+
+    resize();
+    window.addEventListener('resize', resize);
+    if(reduceMotion){ frame(0); } else { raf = requestAnimationFrame(loop); }
+  })();
+
+  // explore marquee — real scrollable track, auto-advances, click-and-hold to drag manually
+  (function(){
+    const outer = document.getElementById('marqueeOuter');
+    const track = document.getElementById('marqueeTrack');
+    if(!outer || !track) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // the unmarked cards are the source set; everything else is a generated loop clone
+    const unit = Array.from(track.children).filter(c => !c.hasAttribute('aria-hidden'));
+
+    let setWidth = 0;
+    function computeSetWidth(){
+      // reset to just the source set, then add one clone to measure the true
+      // periodic spacing (card-to-card offset, not scrollWidth which also
+      // counts the track's one-time edge padding and would drift over time)
+      Array.from(track.children).forEach(c=>{ if(c.hasAttribute('aria-hidden')) c.remove(); });
+      unit.forEach(c=>{
+        const clone = c.cloneNode(true);
+        clone.setAttribute('aria-hidden','true');
+        track.appendChild(clone);
+      });
+      setWidth = track.children[unit.length].offsetLeft - track.children[0].offsetLeft;
+
+      // keep appending extra copies until there's at least one full extra set
+      // beyond the visible width — otherwise scrollLeft can never reach setWidth
+      // (the browser clamps it first) and the auto-scroll appears to stall
+      let guard = 0;
+      while (track.scrollWidth < outer.clientWidth + setWidth && guard < 20){
+        unit.forEach(c=>{
+          const clone = c.cloneNode(true);
+          clone.setAttribute('aria-hidden','true');
+          track.appendChild(clone);
+        });
+        guard++;
+      }
+    }
+    computeSetWidth();
+    window.addEventListener('resize', computeSetWidth);
+
+    let autoOn = true;
+    let resumeTimer = null;
+    function pause(){ autoOn = false; clearTimeout(resumeTimer); }
+    function scheduleResume(delay){ clearTimeout(resumeTimer); resumeTimer = setTimeout(()=>{ autoOn = true; }, delay || 1400); }
+
+    let dragging = false, dragCandidate = false, dragStartX = 0, dragStartY = 0, dragStartScroll = 0;
+
+    function endDrag(e){
+      dragCandidate = false;
+      if(!dragging) return;
+      dragging = false;
+      outer.classList.remove('grabbing');
+      try{ outer.releasePointerCapture(e.pointerId); }catch(err){}
+      scheduleResume(1000);
+    }
+
+    function startDrag(e){
+      dragging = true; dragCandidate = false;
+      outer.classList.add('grabbing');
+      try{ outer.setPointerCapture(e.pointerId); }catch(err){}
+      pause();
+    }
+
+    outer.addEventListener('pointerdown', e=>{
+      dragStartX = e.clientX; dragStartY = e.clientY; dragStartScroll = outer.scrollLeft;
+      // mouse dragging is unambiguous — start immediately. Touch/pen could
+      // just as easily be a vertical page-scroll passing over the row, so
+      // wait for pointermove to reveal actual intent before committing —
+      // CSS already declares touch-action:pan-y for this, and calling
+      // preventDefault here unconditionally used to fight that, hijacking
+      // vertical swipes and leaving the row stuck mid-drag
+      if(e.pointerType === 'mouse'){ e.preventDefault(); startDrag(e); }
+      else{ dragCandidate = true; }
+    });
+    outer.addEventListener('pointermove', e=>{
+      if(dragging){
+        e.preventDefault();
+        outer.scrollLeft = dragStartScroll - (e.clientX - dragStartX);
+        return;
+      }
+      if(!dragCandidate) return;
+      const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+      if(Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      if(Math.abs(dy) > Math.abs(dx)){
+        // vertical intent — let the browser's native pan-y scrolling handle
+        // it instead of dragging the row
+        dragCandidate = false;
+        return;
+      }
+      startDrag(e);
+      e.preventDefault();
+      outer.scrollLeft = dragStartScroll - dx;
+    });
+    outer.addEventListener('pointerup', endDrag);
+    outer.addEventListener('pointercancel', endDrag);
+    outer.addEventListener('lostpointercapture', endDrag);
+
+    outer.addEventListener('touchstart', pause, {passive:true});
+    outer.addEventListener('touchend', ()=> scheduleResume(1000));
+    outer.addEventListener('touchcancel', ()=> scheduleResume(1000));
+
+    function marqueeLoop(){
+      if(autoOn && !reduceMotion && !dragging){
+        outer.scrollLeft += 0.5;
+      }
+      if(setWidth > 0){
+        if(outer.scrollLeft >= setWidth) outer.scrollLeft -= setWidth;
+        else if(outer.scrollLeft < 0) outer.scrollLeft += setWidth;
+      }
+      requestAnimationFrame(marqueeLoop);
+    }
+    requestAnimationFrame(marqueeLoop);
+  })();
+</script>
+
+</body>
+</html>
