@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zo5ive.com/sitemap.xml
