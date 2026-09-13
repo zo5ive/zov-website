@@ -435,7 +435,8 @@
     -webkit-mask-image:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
     mask-image:linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
     scrollbar-width:none;-ms-overflow-style:none;
-    touch-action:pan-y;
+    touch-action:pan-x pan-y;
+    -webkit-overflow-scrolling:touch;
   }
   .marquee-outer::-webkit-scrollbar{display:none;}
   .marquee-track{display:flex;gap:16px;width:max-content;padding:0 24px;user-select:none;-webkit-user-select:none;}
@@ -453,6 +454,14 @@
   .explore-card h3{font-size:19px;font-weight:600;}
   .explore-card .e-tag{font-size:13.5px;color:var(--gray);line-height:1.5;margin-top:10px;}
   .explore-card .e-sub{font-size:12.5px;color:var(--yellow);font-weight:500;margin-top:18px;}
+
+  @media (max-width:640px){
+    .marquee-track{gap:12px;padding:0 20px;}
+    .explore-card{width:225px;padding:22px 20px;min-height:160px;border-radius:18px;}
+    .explore-card h3{font-size:17px;}
+    .explore-card .e-tag{font-size:12.5px;margin-top:8px;}
+    .explore-card .e-sub{font-size:12px;margin-top:14px;}
+  }
 
   /* ================= JOURNEY (motion graphic) ================= */
   /* ================= SIGNAL (motion graphic) ================= */
@@ -1570,10 +1579,9 @@
     function pause(){ autoOn = false; clearTimeout(resumeTimer); }
     function scheduleResume(delay){ clearTimeout(resumeTimer); resumeTimer = setTimeout(()=>{ autoOn = true; }, delay || 1400); }
 
-    let dragging = false, dragCandidate = false, dragStartX = 0, dragStartY = 0, dragStartScroll = 0;
+    let dragging = false, dragStartX = 0, dragStartScroll = 0;
 
     function endDrag(e){
-      dragCandidate = false;
       if(!dragging) return;
       dragging = false;
       outer.classList.remove('grabbing');
@@ -1582,41 +1590,27 @@
     }
 
     function startDrag(e){
-      dragging = true; dragCandidate = false;
+      dragging = true;
       outer.classList.add('grabbing');
       try{ outer.setPointerCapture(e.pointerId); }catch(err){}
       pause();
     }
 
     outer.addEventListener('pointerdown', e=>{
-      dragStartX = e.clientX; dragStartY = e.clientY; dragStartScroll = outer.scrollLeft;
-      // mouse dragging is unambiguous — start immediately. Touch/pen could
-      // just as easily be a vertical page-scroll passing over the row, so
-      // wait for pointermove to reveal actual intent before committing —
-      // CSS already declares touch-action:pan-y for this, and calling
-      // preventDefault here unconditionally used to fight that, hijacking
-      // vertical swipes and leaving the row stuck mid-drag
-      if(e.pointerType === 'mouse'){ e.preventDefault(); startDrag(e); }
-      else{ dragCandidate = true; }
+      // touch/pen: let the browser's native touch-action:pan-x pan-y
+      // scrolling handle it directly — far more reliable than tracking
+      // finger deltas by hand, and gives free momentum + rubber-banding.
+      // Only mice lack a native click-and-drag-to-scroll gesture, so we
+      // supply one ourselves for them.
+      if(e.pointerType !== 'mouse') return;
+      dragStartX = e.clientX; dragStartScroll = outer.scrollLeft;
+      e.preventDefault();
+      startDrag(e);
     });
     outer.addEventListener('pointermove', e=>{
-      if(dragging){
-        e.preventDefault();
-        outer.scrollLeft = dragStartScroll - (e.clientX - dragStartX);
-        return;
-      }
-      if(!dragCandidate) return;
-      const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
-      if(Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-      if(Math.abs(dy) > Math.abs(dx)){
-        // vertical intent — let the browser's native pan-y scrolling handle
-        // it instead of dragging the row
-        dragCandidate = false;
-        return;
-      }
-      startDrag(e);
+      if(!dragging) return;
       e.preventDefault();
-      outer.scrollLeft = dragStartScroll - dx;
+      outer.scrollLeft = dragStartScroll - (e.clientX - dragStartX);
     });
     outer.addEventListener('pointerup', endDrag);
     outer.addEventListener('pointercancel', endDrag);
