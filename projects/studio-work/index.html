@@ -55,6 +55,30 @@
   footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;}
   footer .brand{font-family:'Instrument Serif', serif;font-style:italic;color:var(--yellow);font-size:17px;}
   footer .copy{color:var(--gray-dim);font-size:12px;margin-top:6px;}
+
+  /* custom cursor — shared across the site, same behavior as the homepage */
+  body{cursor:none;}
+  a,button,input,textarea,select,label{cursor:none;}
+  #cur{
+    position:fixed;top:0;left:0;width:16px;height:auto;
+    pointer-events:none;z-index:999;will-change:transform;
+    mix-blend-mode:difference;opacity:0;
+  }
+  #cur.visible{opacity:1;}
+  #cur svg{width:100%;height:auto;display:block;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);}
+  #cur polygon{fill:#fff;transition:fill 0.3s ease;}
+  #cur.big svg{transform:rotate(-135deg) scale(1.25);}
+  #cur.big polygon{fill:var(--yellow);}
+  body.touch #cur{display:none;}
+  body.touch{cursor:auto;}
+  body.touch a,body.touch button,body.touch input,body.touch textarea,body.touch select,body.touch label{cursor:auto;}
+
+  .click-ring{position:fixed;top:0;left:0;width:8px;height:8px;margin:-4px 0 0 -4px;
+    border:1px solid var(--yellow);border-radius:50%;pointer-events:none;z-index:997;
+    mix-blend-mode:difference;opacity:0.85;transform:scale(1);
+    transition:transform 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .click-ring.expand{transform:scale(7);opacity:0;}
 </style>
 </head>
 <body>
@@ -91,6 +115,58 @@
   <div class="brand">zo5ive</div>
   <div class="copy">&copy; 2026 ZOV. All rights reserved.</div>
 </footer>
+
+
+<div id="cur"><svg viewBox="0 0 44.69 31.24" xmlns="http://www.w3.org/2000/svg"><polygon points="0 19.62, 9.53 31.24, 22.45 19.62, 35.35 31.24, 44.69 19.62, 22.45 0, 0 19.62"/></svg></div>
+
+<script>
+  const isFine = window.matchMedia('(pointer: fine)').matches;
+  if(!isFine){ document.body.classList.add('touch'); }
+  else {
+    const cur = document.getElementById('cur');
+    let x=window.innerWidth/2, y=window.innerHeight/2, cx=x, cy=y;
+    window.addEventListener('pointermove', e=>{
+      x=e.clientX; y=e.clientY;
+      if(!cur.classList.contains('visible')){
+        cx=x; cy=y;
+        cur.classList.add('visible');
+      }
+    });
+    document.addEventListener('mouseleave', ()=>cur.classList.remove('visible'));
+    function loop(){
+      cx += (x-cx)*0.2; cy += (y-cy)*0.2;
+      cur.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
+      requestAnimationFrame(loop);
+    }
+    loop();
+    document.querySelectorAll('a, button, input, textarea, select, label').forEach(el=>{
+      el.addEventListener('mouseenter', ()=>cur.classList.add('big'));
+      el.addEventListener('mouseleave', ()=>cur.classList.remove('big'));
+    });
+  }
+
+  // click-ring — quietly expands and dissolves wherever the user clicks empty space
+  (function(){
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduceMotion) return;
+    function spawn(x,y){
+      const el = document.createElement('div');
+      el.className = 'click-ring';
+      el.style.left = x+'px';
+      el.style.top = y+'px';
+      document.body.appendChild(el);
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{ el.classList.add('expand'); });
+      });
+      el.addEventListener('transitionend', ()=>el.remove(), { once:true });
+      setTimeout(()=>{ if(el.parentNode) el.remove(); }, 750);
+    }
+    document.addEventListener('click', e=>{
+      if(e.target.closest('a, button, input, textarea, select, label')) return;
+      spawn(e.clientX, e.clientY);
+    });
+  })();
+</script>
 
 </body>
 </html>
