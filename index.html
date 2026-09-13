@@ -21,13 +21,18 @@
 <meta name="twitter:description" content="Building design, ideas, and systems for purposeful growth.">
 <meta name="twitter:image" content="assets/icons/og-image.svg">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- display=optional (not swap): the browser either has Poppins ready within
-     a very short block window or sticks with the fallback for this render —
-     no later swap, so no mid-page reflow/rewrap once the font arrives -->
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@300;400;500;600;700&display=optional" rel="stylesheet">
+<!-- Fonts are self-hosted (assets/fonts) rather than loaded from Google's CDN so they
+     always ship with the page instead of racing a separate third-party request. -->
+<link rel="preload" href="assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:swap;src:url('assets/fonts/instrument-serif-italic.woff2') format('woff2');}
+  @font-face{font-family:'Instrument Serif';font-style:normal;font-weight:400;font-display:swap;src:url('assets/fonts/instrument-serif-normal.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:300;font-display:swap;src:url('assets/fonts/poppins-300.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:400;font-display:swap;src:url('assets/fonts/poppins-400.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:500;font-display:swap;src:url('assets/fonts/poppins-500.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:600;font-display:swap;src:url('assets/fonts/poppins-600.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:700;font-display:swap;src:url('assets/fonts/poppins-700.woff2') format('woff2');}
   :root{
     --bg:#060606;
     --surface:#121214;
