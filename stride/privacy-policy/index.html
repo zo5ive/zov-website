@@ -33,19 +33,18 @@
     font-size:16px;
   }
   a{color:var(--yellow);text-decoration:none;}
-  a:hover{text-decoration:underline;}
+  main a:hover, .contact-block a:hover{text-decoration:underline;}
 
-  header{
-    border-bottom:1px solid var(--border);
-    padding:20px 24px;
-  }
-  header .inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-  .back-link{font-size:14px;color:var(--gray);}
-  @media (max-width:360px){
-    .back-link{font-size:12px;}
-  }
-  .back-link:hover{color:var(--yellow);}
-  .logo-mark{width:22px;height:22px;display:block;}
+  .site-header{border-bottom:1px solid var(--border);padding:18px 24px;}
+  .site-header .inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .logo-link{display:flex;align-items:center;gap:10px;}
+  .logo-mark{width:26px;height:26px;display:block;flex-shrink:0;}
+  .logo-word{font-family:'Instrument Serif', serif;font-style:italic;font-size:18px;color:var(--paper);}
+  .crumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-dim);white-space:nowrap;}
+  .crumb a{color:var(--gray);}
+  .crumb a:hover{color:var(--yellow);}
+  .crumb-current{color:var(--yellow);font-weight:500;}
+  @media (max-width:480px){.logo-word{display:none;}.crumb{font-size:11px;}}
 
   main{max-width:var(--maxw);margin:0 auto;padding:56px 24px 96px;}
 
@@ -85,16 +84,25 @@
 </head>
 <body>
 
-<header>
+<header class="site-header">
   <div class="inner">
-    <svg class="logo-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <rect width="64" height="64" rx="14" fill="#060606"/>
-      <g transform="translate(12,11) scale(0.284)">
-        <polygon fill="#f5f4ef" points="47.5 44.49 57.03 56.11 69.95 44.49 82.85 56.11 92.19 44.49 69.95 24.87 47.5 44.49"/>
-        <path fill="#ffcc00" d="M70.12,143.2l63.51-81.72c3.93-5.05,6.06-11.27,6.06-17.66V0l-69.68,86.34L0,0v45.96c0,6.57,2.25,12.94,6.36,18.05l63.76,79.19Z"/>
-      </g>
-    </svg>
-    <a class="back-link" href="/">← Back to zo5ive.com</a>
+    <a class="logo-link" href="/">
+      <svg class="logo-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#060606"/>
+        <g transform="translate(12,11) scale(0.284)">
+          <polygon fill="#f5f4ef" points="47.5 44.49 57.03 56.11 69.95 44.49 82.85 56.11 92.19 44.49 69.95 24.87 47.5 44.49"/>
+          <path fill="#ffcc00" d="M70.12,143.2l63.51-81.72c3.93-5.05,6.06-11.27,6.06-17.66V0l-69.68,86.34L0,0v45.96c0,6.57,2.25,12.94,6.36,18.05l63.76,79.19Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">zo5ive</span>
+    </a>
+    <nav class="crumb">
+      <a href="/">zo5ive.com</a>
+      <span>/</span>
+      <a href="/stride/">Stride</a>
+      <span>/</span>
+      <span class="crumb-current">Privacy Policy</span>
+    </nav>
   </div>
 </header>
 

@@ -40,11 +40,16 @@
   a{color:inherit;text-decoration:none;}
   img{max-width:100%;display:block;}
 
-  header{border-bottom:1px solid var(--border);padding:20px 24px;}
-  header .inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-  .back-link{font-size:14px;color:var(--gray);}
-  .back-link:hover{color:var(--yellow);}
-  .logo-mark{width:22px;height:22px;display:block;}
+  .site-header{border-bottom:1px solid var(--border);padding:18px 24px;}
+  .site-header .inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .logo-link{display:flex;align-items:center;gap:10px;}
+  .logo-mark{width:26px;height:26px;display:block;flex-shrink:0;}
+  .logo-word{font-family:'Instrument Serif', serif;font-style:italic;font-size:18px;color:var(--paper);}
+  .crumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-dim);white-space:nowrap;}
+  .crumb a{color:var(--gray);}
+  .crumb a:hover{color:var(--yellow);}
+  .crumb-current{color:var(--yellow);font-weight:500;}
+  @media (max-width:480px){.logo-word{display:none;}.crumb{font-size:12px;}}
 
   main{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
 
@@ -92,7 +97,8 @@
     background:var(--surface);border:1px solid var(--border);border-radius:14px;
     padding:26px 24px;
   }
-  .feature .icon{color:var(--yellow);font-size:22px;margin-bottom:14px;}
+  .feature .icon{color:var(--yellow);margin-bottom:16px;}
+  .feature .icon svg{width:26px;height:26px;}
   .feature h3{font-size:16px;font-weight:600;margin-bottom:8px;color:var(--paper);}
   .feature p{font-size:14px;color:var(--gray);}
 
@@ -107,16 +113,23 @@
 </head>
 <body>
 
-<header>
+<header class="site-header">
   <div class="inner">
-    <svg class="logo-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <rect width="64" height="64" rx="14" fill="#060606"/>
-      <g transform="translate(12,11) scale(0.284)">
-        <polygon fill="#f5f4ef" points="47.5 44.49 57.03 56.11 69.95 44.49 82.85 56.11 92.19 44.49 69.95 24.87 47.5 44.49"/>
-        <path fill="#ffcc00" d="M70.12,143.2l63.51-81.72c3.93-5.05,6.06-11.27,6.06-17.66V0l-69.68,86.34L0,0v45.96c0,6.57,2.25,12.94,6.36,18.05l63.76,79.19Z"/>
-      </g>
-    </svg>
-    <a class="back-link" href="/">← Back to zo5ive.com</a>
+    <a class="logo-link hoverable" href="/">
+      <svg class="logo-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#060606"/>
+        <g transform="translate(12,11) scale(0.284)">
+          <polygon fill="#f5f4ef" points="47.5 44.49 57.03 56.11 69.95 44.49 82.85 56.11 92.19 44.49 69.95 24.87 47.5 44.49"/>
+          <path fill="#ffcc00" d="M70.12,143.2l63.51-81.72c3.93-5.05,6.06-11.27,6.06-17.66V0l-69.68,86.34L0,0v45.96c0,6.57,2.25,12.94,6.36,18.05l63.76,79.19Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">zo5ive</span>
+    </a>
+    <nav class="crumb">
+      <a href="/">zo5ive.com</a>
+      <span>/</span>
+      <span class="crumb-current">Stride</span>
+    </nav>
   </div>
 </header>
 
@@ -139,17 +152,17 @@
 
   <section class="features">
     <div class="feature">
-      <div class="icon">✓</div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3.5" width="7" height="7" rx="1.5"/><path d="M4.5 7l1.3 1.3L8.5 5.5"/><rect x="3" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 7h7M14 17h7"/></svg></div>
       <h3>Daily &amp; flexible tasks</h3>
       <p>Keep routines and long-term goals separate — daily tasks stay focused, flexible tasks capture ideas without a deadline.</p>
     </div>
     <div class="feature">
-      <div class="icon">◆</div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
       <h3>Streaks &amp; progress</h3>
       <p>Track streaks, consistency, and daily completion over time to see how far you've come.</p>
     </div>
     <div class="feature">
-      <div class="icon">◈</div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9.3 12.2l1.9 1.9L15 10"/></svg></div>
       <h3>Privacy-first</h3>
       <p>No account required. Your tasks and habits stay stored on your device, under your control.</p>
     </div>

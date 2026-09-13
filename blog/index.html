@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — ZOV</title>
+<meta name="description" content="Thoughts on purpose, discipline, and growth from ZOV. Coming soon.">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+
+<link rel="preload" href="/assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:swap;src:url('/assets/fonts/instrument-serif-italic.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:400;font-display:swap;src:url('/assets/fonts/poppins-400.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:500;font-display:swap;src:url('/assets/fonts/poppins-500.woff2') format('woff2');}
+  @font-face{font-family:'Poppins';font-style:normal;font-weight:600;font-display:swap;src:url('/assets/fonts/poppins-600.woff2') format('woff2');}
+
+  :root{
+    --bg:#060606;
+    --border:rgba(255,255,255,0.08);
+    --yellow:#ffcc00;
+    --paper:#f5f4ef;
+    --gray:#93938c;
+    --gray-dim:#5c5c58;
+    --maxw:1000px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--bg);color:var(--paper);
+    font-family:'Poppins', sans-serif;font-weight:400;line-height:1.65;
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .site-header{border-bottom:1px solid var(--border);padding:18px 24px;}
+  .site-header .inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .logo-link{display:flex;align-items:center;gap:10px;}
+  .logo-mark{width:26px;height:26px;display:block;flex-shrink:0;}
+  .logo-word{font-family:'Instrument Serif', serif;font-style:italic;font-size:18px;color:var(--paper);}
+  .crumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-dim);white-space:nowrap;}
+  .crumb a{color:var(--gray);}
+  .crumb a:hover{color:var(--yellow);}
+  .crumb-current{color:var(--yellow);font-weight:500;}
+  @media (max-width:480px){.logo-word{display:none;}.crumb{font-size:11px;}}
+
+  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px;}
+  .placeholder-kicker{color:var(--yellow);font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:18px;}
+  .placeholder-title{font-family:'Instrument Serif', serif;font-style:italic;font-size:clamp(2.4rem,7vw,3.6rem);color:var(--paper);margin-bottom:14px;}
+  .placeholder-sub{color:var(--gray);max-width:440px;font-size:15px;}
+
+  footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;}
+  footer .brand{font-family:'Instrument Serif', serif;font-style:italic;color:var(--yellow);font-size:17px;}
+  footer .copy{color:var(--gray-dim);font-size:12px;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="logo-link" href="/">
+      <svg class="logo-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#060606"/>
+        <g transform="translate(12,11) scale(0.284)">
+          <polygon fill="#f5f4ef" points="47.5 44.49 57.03 56.11 69.95 44.49 82.85 56.11 92.19 44.49 69.95 24.87 47.5 44.49"/>
+          <path fill="#ffcc00" d="M70.12,143.2l63.51-81.72c3.93-5.05,6.06-11.27,6.06-17.66V0l-69.68,86.34L0,0v45.96c0,6.57,2.25,12.94,6.36,18.05l63.76,79.19Z"/>
+        </g>
+      </svg>
+      <span class="logo-word">zo5ive</span>
+    </a>
+    <nav class="crumb">
+      <a href="/">zo5ive.com</a>
+      <span>/</span>
+      <span class="crumb-current">Blog</span>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="placeholder-kicker">Coming Soon</div>
+  <h1 class="placeholder-title">Blog</h1>
+  <p class="placeholder-sub">Thoughts on purpose, discipline, and growth. This section is being designed — check back soon.</p>
+</main>
+
+<footer>
+  <div class="brand">zo5ive</div>
+  <div class="copy">&copy; 2026 ZOV. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
